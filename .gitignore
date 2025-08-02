@@ -1,0 +1,14 @@
+# This is a .gitignore file for a Flask and React project
+
+# Ignore Python Virtual Environment
+.venv
+
+backend/__pycache__/
+
+
+# Ignore Node.js dependencies
+frontend/terrahacks-app/node_modules
+
+#Ignore .env files
+frontend/terrahacks-app/.env
+backend/.env

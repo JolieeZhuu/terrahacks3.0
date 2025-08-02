@@ -10,6 +10,7 @@ class Config:
     GOOGLE_REDIRECT_URI = os.environ.get('GOOGLE_REDIRECT_URI')
     
     # Gmail API settings
-    SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
+    SCOPES = ['https://www.googleapis.com/auth/gmail.readonly'],
+        # 'https://www.googleapis.com/auth/gmail.send'  # Add this line
     CREDENTIALS_FILE = 'credentials.json'
     TOKEN_FILE = 'token.json'

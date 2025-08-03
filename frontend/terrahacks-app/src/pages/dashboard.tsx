@@ -6,8 +6,8 @@ export default function Dashboard() {
   return (
     <>
       <div>Dashboard</div>
-      {/* <CarouselDemo /> */}
-      {/* <FlexibleBox /> */}
+      <CarouselDemo />
+      <FlexibleBox />
       
     </>
   );

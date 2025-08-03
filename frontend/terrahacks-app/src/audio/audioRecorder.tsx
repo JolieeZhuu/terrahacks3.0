@@ -1,22 +1,22 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Mic, MicOff, Play, Square, Upload } from 'lucide-react';
-import Button from '@/components/ui/button'
+import { Button } from '@/components/ui/button'
 
-const AudioRecorder = ({ onTranscriptionComplete }) => {
-  const [isRecording, setIsRecording] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [audioBlob, setAudioBlob] = useState(null);
-  const [audioUrl, setAudioUrl] = useState(null);
-  const [transcription, setTranscription] = useState('');
-  const [isTranscribing, setIsTranscribing] = useState(false);
-  const [recordingTime, setRecordingTime] = useState(0);
-  const [error, setError] = useState('');
+const AudioRecorder = ({ onTranscriptionComplete }: { onTranscriptionComplete: any }) => {
+    const [isRecording, setIsRecording] = useState(false);
+    const [isPlaying, setIsPlaying] = useState(false);
+    const [audioBlob, setAudioBlob] = useState(null);
+    const [audioUrl, setAudioUrl] = useState(null);
+    const [transcription, setTranscription] = useState('');
+    const [isTranscribing, setIsTranscribing] = useState(false);
+    const [recordingTime, setRecordingTime] = useState(0);
+    const [error, setError] = useState('');
 
-  const mediaRecorderRef = useRef(null);
-  const audioRef = useRef(null);
-  const streamRef = useRef(null);
-  const chunksRef = useRef([]);
-  const timerRef = useRef(null);
+    const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+    const audioRef = useRef<HTMLAudioElement | null>(null);
+    const streamRef = useRef<MediaStream | null>(null);
+    const chunksRef = useRef<Blob[]>([]);
+    const timerRef = useRef<number | null>(null);
 
   // Check browser support
   useEffect(() => {
@@ -30,16 +30,22 @@ const AudioRecorder = ({ onTranscriptionComplete }) => {
 
   // Timer for recording duration
   useEffect(() => {
-    if (isRecording) {
-      timerRef.current = setInterval(() => {
-        setRecordingTime(prev => prev + 1);
-      }, 1000);
-    } else {
+  if (isRecording) {
+    timerRef.current = window.setInterval(() => {
+      setRecordingTime(prev => prev + 1);
+    }, 1000);
+  } else {
+    if (timerRef.current) {
       clearInterval(timerRef.current);
     }
+  }
 
-    return () => clearInterval(timerRef.current);
-  }, [isRecording]);
+  return () => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
+  };
+}, [isRecording]);
 
   const startRecording = async () => {
     try {
@@ -74,16 +80,16 @@ const AudioRecorder = ({ onTranscriptionComplete }) => {
 
       // Handle recording stop
       mediaRecorder.onstop = () => {
-        const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
+        const blob: any = new Blob(chunksRef.current, { type: 'audio/webm' });
         setAudioBlob(blob);
         
         // Create URL for playback
-        const url = URL.createObjectURL(blob);
+        const url: any = URL.createObjectURL(blob);
         setAudioUrl(url);
 
         // Stop all tracks
         if (streamRef.current) {
-          streamRef.current.getTracks().forEach(track => track.stop());
+          streamRef.current.getTracks().forEach((track) => track.stop());
         }
       };
 
@@ -91,8 +97,8 @@ const AudioRecorder = ({ onTranscriptionComplete }) => {
       mediaRecorder.start(1000); // Collect data every second
       setIsRecording(true);
 
-    } catch (err) {
-      setError(`Error accessing microphone: ${err.message}`);
+    } catch (err: any) {
+      setError(`Error accessing microphone: ${err?.message || err}`);
       console.error('Error starting recording:', err);
     }
   };
@@ -129,7 +135,7 @@ const AudioRecorder = ({ onTranscriptionComplete }) => {
       // Option 2: Send to backend (uncomment to use)
       // await transcribeWithBackend();
       
-    } catch (err) {
+    } catch (err: any) {
       setError(`Transcription failed: ${err.message}`);
     } finally {
       setIsTranscribing(false);
@@ -138,14 +144,14 @@ const AudioRecorder = ({ onTranscriptionComplete }) => {
 
   // Client-side transcription using Web Speech API
   const transcribeWithWebSpeechAPI = () => {
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
         reject(new Error('Web Speech API not supported'));
         return;
       }
 
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      const recognition = new SpeechRecognition();
+      const SpeechRecognition = window.SpeechRecognition || (window as any).webkitSpeechRecognition;
+    const recognition: SpeechRecognition = new SpeechRecognition();
 
       recognition.continuous = true;
       recognition.interimResults = true;
@@ -153,7 +159,7 @@ const AudioRecorder = ({ onTranscriptionComplete }) => {
 
       let finalTranscript = '';
 
-      recognition.onresult = (event) => {
+      recognition.onresult = (event: any) => {
         let interimTranscript = '';
 
         for (let i = event.resultIndex; i < event.results.length; i++) {
@@ -168,7 +174,7 @@ const AudioRecorder = ({ onTranscriptionComplete }) => {
         setTranscription(finalTranscript + interimTranscript);
       };
 
-      recognition.onerror = (event) => {
+      recognition.onerror = (event: any) => {
         reject(new Error(`Speech recognition error: ${event.error}`));
       };
 
@@ -195,6 +201,10 @@ const AudioRecorder = ({ onTranscriptionComplete }) => {
 
   // Backend transcription (alternative method)
   const transcribeWithBackend = async () => {
+
+    if (!audioBlob) {
+      throw new Error('No audio recorded');
+    }
     const formData = new FormData();
     formData.append('audio', audioBlob, 'recording.webm');
 
@@ -215,7 +225,7 @@ const AudioRecorder = ({ onTranscriptionComplete }) => {
     }
   };
 
-  const formatTime = (seconds) => {
+  const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, '0')}`;

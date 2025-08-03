@@ -11,7 +11,10 @@ import {
     Route,
     Navigate
 } from 'react-router-dom'
+
+// Importing Route Pages
 import { PrivateRoute } from './auth/privateRoute'
+import RecordingPage from './pages/recording-page'
 
 export default function App() {
   return (
@@ -19,6 +22,7 @@ export default function App() {
       <Route path="/" element={<Home/>}/>
       <Route path="/dashboard" element={<PrivateRoute><Dashboard/></PrivateRoute>}/>
       <Route path="/phrasebook" element={<PrivateRoute><VerticalOverlapCarousel/></PrivateRoute>}/>
+      <Route path="/record" element={<PrivateRoute><RecordingPage/></PrivateRoute>}/>
       <Route path="*" element={<Navigate to="/"/>}/>
     </Routes>
   );
